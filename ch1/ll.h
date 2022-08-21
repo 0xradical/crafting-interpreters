@@ -16,3 +16,5 @@ int length(LinkedList);
 void prepend(LinkedList*, char*);
 void append(LinkedList*, char*);
 void print(LinkedList);
+char* delete(LinkedList*);
+char* reverse_delete(LinkedList*);

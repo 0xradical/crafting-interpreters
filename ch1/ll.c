@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "ll.h"
 
 void prepend(LinkedList* ll, char* string) {
@@ -63,18 +64,51 @@ int length(LinkedList ll) {
   return _length(ll.head);
 }
 
-// int main() {
-//   // printf() displays the string inside quotation
-//   LinkedList ll = { NULL, NULL };
-//   char *s = "Thiago";
-//   printf("%i\n", length(ll.head));
-//   prepend(&ll, "Bruno");
-//   prepend(&ll, "Thiago");
-//   append(&ll, "Mario");
-//   print(ll.head);
-//   // char *t = s;
-//   printf("Hello, World!\n");
-//   printf("%s\n", ll.head->data);
-//   printf("%i\n", length(ll.head));
-//   return 0;
-// }
+// deletion starting from list's head
+char* delete(LinkedList *ll) {
+  LinkedListNode *lln;
+  char* data;
+
+  if (ll->head == NULL) {
+    return NULL;
+  } else {
+    lln = ll->head;
+    data = (char*)malloc(sizeof(char) * strlen(lln->data));
+    strcpy(data, lln->data);
+
+    if (ll->head == ll->tail) {
+      ll->head = NULL;
+      ll->tail = NULL;
+    } else {
+      ll->head = ll->head->next;
+      ll->head->prev = NULL;
+    }
+
+    free(lln);
+    return data;
+  }
+}
+
+char* reverse_delete(LinkedList *ll) {
+  LinkedListNode *lln;
+  char* data;
+
+  if (ll->tail == NULL) {
+    return NULL;
+  } else {
+    lln = ll->tail;
+    data = (char*)malloc(sizeof(char) * strlen(lln->data));
+    strcpy(data, lln->data);
+
+    if (ll->tail == ll->head) {
+      ll->tail = NULL;
+      ll->head = NULL;
+    } else {
+      ll->tail = ll->tail->prev;
+      ll->tail->next = NULL;
+    }
+
+    free(lln);
+    return data;
+  }
+}
