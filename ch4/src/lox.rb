@@ -13,13 +13,14 @@ module Lox
 
   # For exit codes, I’m using the conventions defined in the UNIX “sysexits.h” header.
   # It’s the closest thing to a standard I could find.
-  def self.run
+  def self.boot
     if ARGV.length > 1
       puts "Usage: lox [script]"
       exit(64)
     elsif ARGV.length == 1
       self.run_file(ARGV[0])
     else
+      puts "Running in REPL mode"
       self.run_prompt
     end
   end
@@ -40,11 +41,12 @@ module Lox
 
   def self.run_prompt
     loop do
-      puts "> "
-      line = gets.chomp
+      print "> "
+      line = gets
+      # ctrl-d exists repl
       break if line.nil?
 
-      self.run(line)
+      self.run(line.chomp)
       self.error = false
     end
   end

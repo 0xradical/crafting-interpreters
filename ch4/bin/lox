@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+require "pathname"
+$LOAD_PATH.unshift(Pathname.new(__dir__) / ".." / "src")
+require "lox"
+
+Lox.boot
