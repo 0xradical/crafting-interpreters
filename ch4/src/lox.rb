@@ -1,3 +1,4 @@
+require_relative "./lox/token_type"
 require_relative "./lox/scanner"
 
 module Lox
@@ -53,6 +54,7 @@ module Lox
 
   def self.run(source)
     scanner = Lox::Scanner.new(source)
+    scanner.scan_tokens
 
     scanner.tokens.each do |token|
       puts(token)
