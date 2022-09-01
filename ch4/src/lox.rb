@@ -1,4 +1,5 @@
 require_relative "./lox/token_type"
+require_relative "./lox/token"
 require_relative "./lox/scanner"
 
 module Lox
