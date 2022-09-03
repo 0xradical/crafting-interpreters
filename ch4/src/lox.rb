@@ -61,4 +61,28 @@ module Lox
       puts(token)
     end
   end
+
+  # keywords
+  def self.keywords
+    @@keywords ||= [
+      :AND,
+      :CLASS,
+      :ELSE,
+      :FALSE,
+      :FUN,
+      :FOR,
+      :IF,
+      :NIL,
+      :OR,
+      :PRINT,
+      :RETURN,
+      :SUPER,
+      :THIS,
+      :TRUE,
+      :VAR,
+      :WHILE
+    ].reduce(Hash.new) do |acc, kw|
+      { **acc, kw.downcase.to_s => Lox::TokenType.const_get(kw) }
+    end
+  end
 end

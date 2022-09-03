@@ -22,10 +22,12 @@ module Lox
     # that wasn't tokenized yet
     def advance
      c = source[current]
-     current += 1
+     self.current += 1
      c
     end
 
+    # returns something "absurd"
+    # when lookahead goes out of bounds
     def lookahead(n = 1)
       return "\0" if ended?
       source[current + n - 1]
@@ -47,13 +49,78 @@ module Lox
 
     def scan_tokens
       while !ended?
-        start = current
+        self.start = current
         scan_token
       end
 
       tokens.push(Token.new(TokenType::EOF, "", nil, line))
 
       tokens
+    end
+
+    def string
+      while lookahead != '"' && !ended?
+        self.line += 1 if lookahead == "\n"
+        advance
+      end
+
+      return Lox.error(line, "Unterminated string.") if ended?
+
+      # The closing "
+      advance
+
+      literal = source[(start + 1)...(current - 1)]
+      add_token(TokenType::STRING, literal)
+    end
+
+    def digit?(c)
+      c >= '0' && c <= '9'
+    end
+
+    def number
+      while digit?(lookahead)
+        advance
+      end
+
+      # Look for a fractional part.
+
+      if lookahead == '.' && digit?(lookahead(2))
+        advance # consume de dot
+
+        while digit?(lookahead)
+          advance
+        end
+      end
+
+      literal = (source[(start)...(current)]).to_f
+      add_token(TokenType::NUMBER, literal)
+    end
+
+    def alpha?(c)
+      (c >= 'a' && c <= 'z') ||
+      (c >= 'A' && c <= 'Z') ||
+      c == '_'
+    end
+
+    def alphanum?(c)
+      alpha?(c) || digit?(c)
+    end
+
+    def keyword?(text)
+      !Lox.keywords[text].nil?
+    end
+
+    def identifier
+      while alphanum?(lookahead)
+        advance
+      end
+
+      text = source[(start)...(current)]
+      if keyword?(text)
+        add_token(Lox.keywords[text])
+      else
+        add_token(TokenType::IDENTIFIER, text)
+      end
     end
 
     def scan_token
@@ -80,9 +147,9 @@ module Lox
         return add_token(TokenType::SEMICOLON)
       when "*"
         return add_token(TokenType::STAR)
-      when "!":
+      when "!"
         return add_token(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG)
-      when '=':
+      when '='
         return add_token(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL)
       when '<'
         return add_token(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS)
@@ -90,9 +157,11 @@ module Lox
         return add_token(match('=') ? TokenType::GREATER_EQUAL : TokenType::GREATER)
 
       # special case because it might a comment //
-      when '/':
+      when '/'
         if match('/') # it's a comment
-          advance while lookahead != "\n" && !ended?
+          while lookahead != "\n" && !ended?
+            advance
+          end
           # a comment goes until the end of the line
         else # it's a simple division
           return add_token(TokenType::SLASH)
@@ -102,8 +171,18 @@ module Lox
       when "\n"
         self.line += 1
         return
+      when '"'
+        string
       else
-        return Lox.error(line, "Unexpected character.")
+        if digit?(c)
+          number
+        elsif alpha?(c)
+          # we begin by assuming any lexeme starting
+          # with a letter or underscore is an identifier
+          identifier
+        else
+          return Lox.error(line, "Unexpected character.")
+        end
       end
     end
   end

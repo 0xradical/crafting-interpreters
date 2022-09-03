@@ -4,8 +4,12 @@ module Lox
       @type, @lexeme, @literal, @line = type, lexeme, literal, line
     end
 
-    def to_s
-      "#{type} #{lexeme} #{literal}"
+    def inspect
+      @__inspect ||= [
+        Lox::TokenType::IDS[@type],
+        @lexeme,
+        @literal ? @literal.inspect : nil
+      ].compact.join(' ')
     end
   end
 end

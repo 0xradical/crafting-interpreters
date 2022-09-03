@@ -1,6 +1,6 @@
 module Lox
   module TokenType
-    [
+    IDS = [
       # single-character tokens
       :LEFT_PAREN,
       :RIGHT_PAREN,
@@ -49,7 +49,9 @@ module Lox
 
 
       :EOF
-    ].each_with_index do |type, index|
+    ]
+
+    IDS.each_with_index do |type, index|
       eval("#{type} = #{index}")
     end
   end
