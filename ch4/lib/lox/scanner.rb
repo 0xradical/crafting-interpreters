@@ -47,13 +47,13 @@ module Lox
       @tokens.push(Token.new(token_type, text, literal, line))
     end
 
-    def scan_tokens
+    def scan_tokens!
       while !ended?
         self.start = current
         scan_token
       end
 
-      tokens.push(Token.new(TokenType::EOF, "", nil, line))
+      tokens.push(Token.new(TokenType::EOF, nil, nil, line))
 
       tokens
     end
@@ -123,6 +123,32 @@ module Lox
       end
     end
 
+    def multiline_comment?
+      lookahead == "/" && lookahead(2) == "*"
+    end
+
+    def multiline_comment(depth = 0)
+      advance # *
+
+      while !(lookahead == "*" && lookahead(2) == "/") && !ended?
+        if advance == "\n"
+          self.line += 1
+        end
+
+        # nesting multiline_comment
+        if multiline_comment?
+          multiline_comment(depth + 1)
+        end
+      end
+
+      if  lookahead == "*" && lookahead(2) == "/"
+        advance # *
+        advance # /
+      else
+        Lox.error(line, "Unterminated multiline comment block.")
+      end
+    end
+
     def scan_token
       c = advance
 
@@ -163,6 +189,8 @@ module Lox
             advance
           end
           # a comment goes until the end of the line
+        elsif lookahead == "*" # multiline comment
+          multiline_comment
         else # it's a simple division
           return add_token(TokenType::SLASH)
         end
