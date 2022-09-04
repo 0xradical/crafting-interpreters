@@ -5,3 +5,6 @@ test:
 
 pry:
 	@ bundle exec pry -Ilib -rlox
+
+lox:
+	@ ./bin/lox

@@ -46,7 +46,7 @@ module Lox
       print "> "
       line = gets
       # ctrl-d exists repl
-      break if line.nil?
+      break if line.nil? || line.chomp == "exit"
 
       self.run(line.chomp)
       self.error = false
@@ -55,11 +55,9 @@ module Lox
 
   def self.run(source)
     scanner = Lox::Scanner.new(source)
-    scanner.scan_tokens
+    scanner.scan_tokens!
 
-    scanner.tokens.each do |token|
-      puts(token)
-    end
+    pp scanner.tokens
   end
 
   # keywords
