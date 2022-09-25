@@ -2,7 +2,14 @@
 
 module Lox
   class Scanner
-    attr_reader :tokens, :length, :source
+    extend T::Sig
+    sig { returns(String) }
+    attr_reader :source
+    sig { returns(T::Array[Lox::Token])}
+    attr_reader :tokens
+    sig { returns(Integer) }
+    attr_reader :length
+
     attr_accessor :start, :current, :line
 
     def initialize(source)
@@ -11,9 +18,10 @@ module Lox
       @start = 0
       @current = 0
       @line = 1
-      @tokens = []
+      @tokens = T.let([], T::Array[Lox::Token])
     end
 
+    sig { returns(T::Boolean) }
     def ended?
       current >= length
     end
@@ -22,17 +30,20 @@ module Lox
     # the pointer "current" points
     # to the next first character
     # that wasn't tokenized yet
+    sig { returns(String) }
     def advance
      c = source[current]
      self.current += 1
-     c
+     c || "\0"
     end
 
-    # returns something "absurd"
-    # when lookahead goes out of bounds
-    def lookahead(n = 1)
+    # returns character "shift" - 1
+    # positions ahead
+    # if out of bounds, returns something "absurd", i.e., "\0"
+    sig { params(shift: Integer).returns(String) }
+    def lookahead(shift = 1)
       return "\0" if ended?
-      source[current + n - 1]
+      T.must(source[current + shift - 1])
     end
 
     def match(expected)

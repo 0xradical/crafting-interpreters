@@ -14,3 +14,6 @@ dsl:
 
 tc:
 	@ bundle exec srb tc
+
+ast:
+	@ bundle exec ruby -Itools -Ilib -rast -rlox -e 'Tools::AST.run' $(PWD)/lib/lox/expr.rb

@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require "pathname"
-$LOAD_PATH.unshift(Pathname.new(__dir__) / ".." / "tool")
+$LOAD_PATH.unshift(Pathname.new(__dir__) / ".." / "tools")
+$LOAD_PATH.unshift(Pathname.new(__dir__) / ".." / "lib")
 
-Lox.boot
+require "lox"
+require "ast"
