@@ -4,6 +4,7 @@ require_relative "./lox/token_type"
 require_relative "./lox/token"
 require_relative "./lox/scanner"
 require_relative "./lox/expr"
+require_relative "./lox/ast_printer"
 
 module Lox
   extend T::Sig

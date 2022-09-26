@@ -10,8 +10,8 @@ module Tapioca
       sig { override.void }
       def decorate
         root.create_path(constant) do |model|
-          ::Lox::TokenType::IDS.each do |id|
-            model.create_constant(id, value: "Integer")
+          ::Lox::TokenType::IDS.each_with_index do |id, index|
+            model.create_constant(id, value: "T.let(T.unsafe(nil), Integer)")
           end
         end
       end

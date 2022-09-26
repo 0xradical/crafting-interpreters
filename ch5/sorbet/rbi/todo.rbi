@@ -26,4 +26,3 @@ module Lox::TokenType::RIGHT_PAREN; end
 module Lox::TokenType::SEMICOLON; end
 module Lox::TokenType::SLASH; end
 module Lox::TokenType::STAR; end
-module Lox::TokenType::STRING; end

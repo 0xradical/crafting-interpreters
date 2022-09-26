@@ -7,7 +7,7 @@ module Lox
     extend T::Generic
     abstract!
 
-    R = type_member
+    R = type_member(:out) {{ upper: T.untyped }}
 
     sig { abstract.params(expr: Binary).returns(R) }
     def visit_BinaryExpr(expr); end

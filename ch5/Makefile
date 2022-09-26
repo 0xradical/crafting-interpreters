@@ -11,6 +11,7 @@ lox:
 
 dsl:
 	@ ./bin/tapioca dsl
+	@ ./bin/tapioca todo
 
 tc:
 	@ bundle exec srb tc

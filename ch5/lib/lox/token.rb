@@ -2,9 +2,21 @@
 module Lox
   class Token
     extend T::Sig
-    attr_reader :lexeme, :literal, :line
 
-    def initialize(type, lexeme = nil, literal = nil, line = nil)
+    sig { returns(T.nilable(String)) }
+    attr_reader :lexeme
+
+    sig { returns(T.nilable(String))}
+    attr_reader :literal
+
+    sig { returns(Integer) }
+    attr_reader :line
+
+    ##
+    # Lexeme is nilable for EOF token
+    #
+    sig { params(type: Integer, lexeme: T.nilable(String), literal: T.nilable(String), line: Integer).void }
+    def initialize(type, lexeme, literal = nil, line = -1)
       @type, @lexeme, @literal, @line = type, lexeme, literal, line
     end
 
