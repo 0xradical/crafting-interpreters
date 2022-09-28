@@ -11,7 +11,7 @@ module Tapioca
       def decorate
         root.create_path(constant) do |model|
           ::Lox::TokenType::IDS.each_with_index do |id, index|
-            model.create_constant(id, value: "T.let(T.unsafe(nil), Integer)")
+            model.create_constant(id, value: "T.let(T.unsafe(nil), ::Lox::TokenType::Value)")
           end
         end
       end

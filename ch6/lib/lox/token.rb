@@ -15,13 +15,14 @@ module Lox
     ##
     # Lexeme is nilable for EOF token
     #
-    sig { params(type: Integer, lexeme: T.nilable(String), literal: T.nilable(String), line: Integer).void }
-    def initialize(type, lexeme, literal = nil, line = -1)
-      @type, @lexeme, @literal, @line = type, lexeme, literal, line
+    sig { params(type_value: Lox::TokenType::Value, lexeme: T.nilable(String), literal: T.nilable(String), line: Integer).void }
+    def initialize(type_value, lexeme, literal = nil, line = -1)
+      @type_value, @lexeme, @literal, @line = type_value, lexeme, literal, line
     end
 
+    sig { returns(T.nilable(Symbol)) }
     def type
-      Lox::TokenType::IDS[@type]
+      Lox::TokenType::IDS[T.let(@type_value, Lox::TokenType::Value)]
     end
 
     sig { params(other: ::Lox::Token).returns(T::Boolean)}

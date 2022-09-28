@@ -4,6 +4,8 @@ module Lox
   module TokenType
     extend T::Sig
 
+    Value = T.type_alias { Integer }
+
     IDS = T.let([
       # single-character tokens
       :LEFT_PAREN,

@@ -32,9 +32,20 @@ module Lox
     end
   end
 
-  sig { params(line: String, message: String).void }
+  sig { params(line: T.any(String, Lox::Token), message: String).void }
   def self.error(line, message)
-    report(line, "", message)
+    case line
+    when String
+      report(line, "", message)
+    when Lox::Token
+      if line.type == Lox::TokenType::IDS[Lox::TokenType::EOF]
+        report(line.line," at end", message)
+      else
+        report(line.line," at '#{line.lexeme}'", message)
+      end
+    else
+      T.absurd(line)
+    end
   end
 
   def self.report(line, where, message)
