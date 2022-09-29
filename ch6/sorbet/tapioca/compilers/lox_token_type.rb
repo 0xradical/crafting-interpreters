@@ -1,5 +1,5 @@
 # typed: true
-require_relative("../../../lib/lox")
+require_relative "../../../lib/lox.rb"
 
 module Tapioca
   module Compilers
@@ -11,7 +11,7 @@ module Tapioca
       def decorate
         root.create_path(constant) do |model|
           ::Lox::TokenType::IDS.each_with_index do |id, index|
-            model.create_constant(id, value: "T.let(T.unsafe(nil), ::Lox::TokenType::Value)")
+            model.create_constant(id.to_s, value: "T.let(T.unsafe(nil), ::Lox::TokenType::Value)")
           end
         end
       end

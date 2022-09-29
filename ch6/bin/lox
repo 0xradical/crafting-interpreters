@@ -8,15 +8,15 @@ Lox.boot
 
 # test ASTPrinter
 
-expression = Lox::Binary.new(
-  Lox::Unary.new(
-    Lox::Token.new(Lox::TokenType::MINUS, "-", nil, 1),
-    Lox::Literal.new(123)
-  ),
-  Lox::Token.new(Lox::TokenType::STAR, "*", nil, 1),
-  Lox::Grouping.new(
-    Lox::Literal.new(45.67)
-  )
-)
+# expression = Lox::Binary.new(
+#   Lox::Unary.new(
+#     Lox::Token.new(Lox::TokenType::MINUS, "-", nil, 1),
+#     Lox::Literal.new(123)
+#   ),
+#   Lox::Token.new(Lox::TokenType::STAR, "*", nil, 1),
+#   Lox::Grouping.new(
+#     Lox::Literal.new(45.67)
+#   )
+# )
 
 Lox::ASTPrinter.new().print(expression)

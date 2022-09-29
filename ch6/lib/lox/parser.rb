@@ -33,6 +33,15 @@ module Lox
       @current = T.let(0, Integer)
     end
 
+    sig { returns(T.nilable(Lox::Expr)) }
+    def parse
+      expression
+    # Syntax error recovery is the parser’s job, so we don’t want the ParseError exception
+    # to escape into the rest of the interpreter.
+    rescue Error => e
+      nil
+    end
+
     sig { returns(Lox::Expr) }
     def expression
       equality
@@ -116,7 +125,7 @@ module Lox
       end
     end
 
-    sig { returns(T.nilable(Lox::Expr)) }
+    sig { returns(Lox::Expr) }
     def primary
       return Lox::Literal.new(true) if current_matches?(Lox::TokenType::TRUE)
       return Lox::Literal.new(false) if current_matches?(Lox::TokenType::FALSE)
@@ -136,6 +145,10 @@ module Lox
         consume!(Lox::TokenType::RIGHT_PAREN, "Expected ')' after expression")
         return Lox::Grouping.new(expr)
       end
+
+      # If none of the cases in there match, it means we are sitting on a token that can’t start an expression.
+      # We need to handle that error too.
+      raise error(peek, "Parsing error: Expected expression")
     end
 
     ##
@@ -224,6 +237,33 @@ module Lox
     sig { returns(T.nilable(Lox::Token)) }
     def previous
       current == 0 ? nil : @tokens[current - 1]
+    end
+
+    ##
+    # Synchronize the parser
+    #
+    # When an error happens, we don't want to stop
+    # the parser immediately because some errors
+    # can be dealt with in a way that the parser
+    # can continue to consume the rest of the AST
+    # This mechanism is called synchronization
+    # We use the fact each Lox statement is finished with
+    # :SEMICOLON, so the synchronization ends if one is found
+    # Or if current token is any of : class, fun, var, if, while, print, return
+    # we consider this the beginning of a statement
+    # then we don't need to sync anymore
+    def sync
+      consume
+
+      loop do
+        break if previous.nil?
+        break if T.must(previous).type == :SEMICOLON
+
+        case peek.type
+        when :CLASS, :FUN, :VAR, :FOR, :IF, :WHILE, :PRINT, :RETURN
+          break
+        end
+      end
     end
   end
 end

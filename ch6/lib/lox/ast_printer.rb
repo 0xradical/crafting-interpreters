@@ -8,9 +8,13 @@ module Lox
 
     R = type_member {{ fixed: String }}
 
-    sig { params(expr: Expr).returns(String) }
+    sig { params(expr: T.nilable(Expr)).returns(String) }
     def print(expr)
-      expr.accept(self)
+      if expr
+        expr.accept(self)
+      else
+        "-- empty --"
+      end
     end
 
     sig { override.params(expr: Binary).returns(String).checked(:never) }

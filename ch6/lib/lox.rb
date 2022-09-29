@@ -5,6 +5,7 @@ require_relative "./lox/token"
 require_relative "./lox/scanner"
 require_relative "./lox/expr"
 require_relative "./lox/ast_printer"
+require_relative "./lox/parser"
 
 module Lox
   extend T::Sig
@@ -74,7 +75,12 @@ module Lox
     scanner = Lox::Scanner.new(source)
     scanner.scan_tokens!
 
-    pp scanner.tokens
+    parser = Lox::Parser.new(scanner.tokens)
+    expression = parser.parse
+
+    return if self.error?
+
+    puts Lox::ASTPrinter.new.print(expression)
   end
 
   # keywords

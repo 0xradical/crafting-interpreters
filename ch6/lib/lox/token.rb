@@ -6,7 +6,7 @@ module Lox
     sig { returns(T.nilable(String)) }
     attr_reader :lexeme
 
-    sig { returns(T.nilable(String))}
+    sig { returns(T.nilable(T.any(String, Float)))}
     attr_reader :literal
 
     sig { returns(Integer) }
@@ -15,7 +15,7 @@ module Lox
     ##
     # Lexeme is nilable for EOF token
     #
-    sig { params(type_value: Lox::TokenType::Value, lexeme: T.nilable(String), literal: T.nilable(String), line: Integer).void }
+    sig { params(type_value: Lox::TokenType::Value, lexeme: T.nilable(String), literal: T.nilable(T.any(String, Float)), line: Integer).void }
     def initialize(type_value, lexeme, literal = nil, line = -1)
       @type_value, @lexeme, @literal, @line = type_value, lexeme, literal, line
     end

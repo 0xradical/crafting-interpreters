@@ -83,7 +83,7 @@ module Lox
       advance
 
       literal = source[(start + 1)...(current - 1)]
-      add_token(Lox::TokenType, literal)
+      add_token(Lox::TokenType::STRING, literal)
     end
 
     def digit?(c)
