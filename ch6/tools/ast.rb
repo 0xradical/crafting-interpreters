@@ -49,6 +49,11 @@ module Tools
         Unary: {
           operator: "Lox::Token",
           right: "Lox::Expr"
+        },
+        Ternary: {
+          clause: "Lox::Expr",
+          left: "Lox::Expr",
+          right: "Lox::Expr"
         }
       })
     end
@@ -90,7 +95,7 @@ end}
     extend T::Generic
     abstract!
 
-    R = type_member
+    R = type_member(:out) {{ upper: T.untyped }}
 
 #{types.each_pair.map{|name, _| ["    sig { abstract.params(expr: #{name}).returns(R) }\n", "    def visit_#{name}#{base_name}(expr); end"].join}.join("\n\n")}
   end

@@ -34,7 +34,7 @@ module Lox
 
     def inspect
       @__inspect ||= [
-        Lox::TokenType::IDS[@type],
+        Lox::TokenType::IDS[@type_value],
         @lexeme,
         @literal ? @literal.inspect : nil,
         @line ? ":#{@line}" : nil

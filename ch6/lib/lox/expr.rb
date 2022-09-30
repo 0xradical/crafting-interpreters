@@ -20,8 +20,11 @@ module Lox
 
     sig { abstract.params(expr: Unary).returns(R) }
     def visit_UnaryExpr(expr); end
-  end
 
+    sig { abstract.params(expr: Ternary).returns(R) }
+    def visit_TernaryExpr(expr); end
+  end
+      
   class Expr
     extend T::Sig
     extend T::Helpers
@@ -30,7 +33,7 @@ module Lox
     sig { abstract.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor); end
   end
-
+  
   class Binary < Expr
     extend T::Sig
 
@@ -55,7 +58,7 @@ module Lox
       visitor.visit_BinaryExpr(self)
     end
   end
-
+      
 
   class Grouping < Expr
     extend T::Sig
@@ -73,7 +76,7 @@ module Lox
       visitor.visit_GroupingExpr(self)
     end
   end
-
+      
 
   class Literal < Expr
     extend T::Sig
@@ -91,7 +94,7 @@ module Lox
       visitor.visit_LiteralExpr(self)
     end
   end
-
+      
 
   class Unary < Expr
     extend T::Sig
@@ -113,5 +116,31 @@ module Lox
       visitor.visit_UnaryExpr(self)
     end
   end
+      
 
+  class Ternary < Expr
+    extend T::Sig
+
+    sig { returns(Lox::Expr) }
+    attr_reader :clause
+
+    sig { returns(Lox::Expr) }
+    attr_reader :left
+
+    sig { returns(Lox::Expr) }
+    attr_reader :right
+
+    sig { params(clause: Lox::Expr,left: Lox::Expr,right: Lox::Expr).void }
+    def initialize(clause,left,right)
+      @clause = clause
+      @left = left
+      @right = right
+    end
+
+    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_TernaryExpr(self)
+    end
+  end
+      
 end

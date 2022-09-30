@@ -5,7 +5,9 @@
 #
 # Table of precedence and associativity, from lowest to highest:
 #
-# expression     → equality ;
+# expression     → comma ;
+# comma          → ternary ( "," ternary )* ;
+# ternary        → equality ( "?" equality ":" equality )* ;
 # equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 # comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 # term           → factor ( ( "-" | "+" ) factor )* ;
@@ -44,7 +46,39 @@ module Lox
 
     sig { returns(Lox::Expr) }
     def expression
-      equality
+      comma
+    end
+
+    sig { returns(Lox::Expr) }
+    def comma
+      expr = ternary
+
+      while current_matches?(
+        Lox::TokenType::COMMA
+      )
+        left = expr
+        operator = T.must(previous)
+        right = ternary
+        expr = Lox::Binary.new(left, operator, right)
+      end
+
+      expr
+    end
+
+    # https://norasandler.com/2018/02/25/Write-a-Compiler-6.html
+    def ternary
+      expr = equality
+
+      while current_matches?(
+        Lox::TokenType::QUESTION
+      )
+        left = equality
+        consume!(Lox::TokenType::COLON, "Expected ':' after expression")
+        right = ternary
+        expr = Lox::Ternary.new(expr, left, right)
+      end
+
+      expr
     end
 
     sig { returns(Lox::Expr) }

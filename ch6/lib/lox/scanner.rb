@@ -56,7 +56,7 @@ module Lox
     end
 
     def add_token(token_type, literal = nil)
-      text = source[start..current]
+      text = source[start...current]
       @tokens.push(Token.new(token_type, text, literal, line))
     end
 
@@ -182,10 +182,14 @@ module Lox
         return add_token(TokenType::MINUS)
       when "+"
         return add_token(TokenType::PLUS)
+      when ":"
+        return add_token(TokenType::COLON)
       when ";"
         return add_token(TokenType::SEMICOLON)
       when "*"
         return add_token(TokenType::STAR)
+      when "?"
+        return add_token(TokenType::QUESTION)
       when "!"
         return add_token(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG)
       when '='

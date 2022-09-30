@@ -47,6 +47,11 @@ module Lox
       end
     end
 
+    sig { override.params(expr: Ternary).returns(String).checked(:never) }
+    def visit_TernaryExpr(expr)
+      parenthesize("?:", expr.clause, expr.left, expr.right)
+    end
+
     sig { params(name: String, exprs: Expr).returns(String).checked(:never) }
     def parenthesize(name, *exprs)
       string = "( #{name}"
@@ -56,7 +61,7 @@ module Lox
         string += expr.accept(self)
       end
 
-      string += ")"
+      string += " )"
       string
     end
   end
