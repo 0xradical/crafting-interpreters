@@ -22,15 +22,18 @@ module Lox
     sig { params(expr: T.nilable(Expr)).returns(Object) }
     def interpret(expr)
       if expr
-        evaluate(expr)
+        value = evaluate(expr)
+        puts stringify(value)
       else
         nil
       end
+    rescue RuntimeError => e
+      Lox.runtime_error(e)
     end
 
     sig { override.params(expr: Grouping).returns(Object).checked(:never) }
     def visit_GroupingExpr(expr)
-      evaluate(expr)
+      evaluate(expr.expression)
     end
 
     sig { override.params(expr: Literal).returns(Object).checked(:never) }
@@ -48,6 +51,7 @@ module Lox
 
       case type
       when :MINUS
+        check_number_operand(expr.operator, right);
         return (-1) * T.cast(right, Float)
       when :BANG
         return !truthy?(right)
@@ -62,10 +66,13 @@ module Lox
 
       case type
       when :MINUS
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) - T.cast(right, Float)
       when :SLASH
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) / T.cast(right, Float)
       when :STAR
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) * T.cast(right, Float)
       when :PLUS
         case [ left, right ]
@@ -73,14 +80,20 @@ module Lox
           return T.cast(left, String) + T.cast(right, String)
         in [ Float, Float ]
           return T.cast(left, Float) + T.cast(right, Float)
+        else
+          raise RuntimeError.new(expr.operator, "Operands must be two numbers or two strings.")
         end
       when :GREATER
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) > T.cast(right, Float)
       when :GREATER_EQUAL
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) >= T.cast(right, Float)
       when :LESS
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) < T.cast(right, Float)
       when :LESS_EQUAL
+        check_number_operands(expr.operator, left, right)
         return T.cast(left, Float) <= T.cast(right, Float)
       when :BANG_EQUAL
         return !equal?(left, right)
@@ -109,11 +122,56 @@ module Lox
       true
     end
 
+    ##
+    # Checks for value equality
+    # Use Ruby's == method to check for that
     sig { params(val: Object, other_val: Object).returns(T::Boolean) }
     def equal?(val, other_val)
       return true if val.nil? && other_val.nil?
 
       val == other_val
+    end
+
+    ##
+    # Check if operand is a number
+    #
+    sig { params(operator: Lox::Token, value: Object).void }
+    def check_number_operand(operator, value)
+      return if value.is_a?(Float)
+
+      raise RuntimeError.new(operator, "Operand must be a number.")
+    end
+
+    ##
+    # Check if operands are both numbers
+    #
+    sig { params(operator: Lox::Token, left: Object, right: Object).void }
+    def check_number_operands(operator, left, right)
+      return if left.is_a?(Float) && right.is_a?(Float)
+
+      raise RuntimeError.new(operator, "Operands must be numbers.")
+    end
+
+    ##
+    # Returns a string representation of any value
+    # produced by the interpreter's evaluation of an expression
+    #
+    sig { params(value: Object).returns(String) }
+    def stringify(value)
+      return "nil" if value.nil?
+
+      if value.is_a?(Float)
+        text = value.to_s
+
+        # 2.0 => 2
+        if text.end_with?(".0")
+          text = T.must(text[0...-2])
+        end
+
+        return text
+      end
+
+      value.to_s
     end
   end
 end
