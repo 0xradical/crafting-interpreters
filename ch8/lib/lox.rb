@@ -5,6 +5,7 @@ require_relative "./lox/token_type"
 require_relative "./lox/token"
 require_relative "./lox/scanner"
 require_relative "./lox/expr"
+require_relative "./lox/stmt"
 require_relative "./lox/ast_printer"
 require_relative "./lox/parser"
 require_relative "./lox/interpreter"
@@ -127,12 +128,12 @@ module Lox
     scanner.scan_tokens!
 
     parser = Lox::Parser.new(scanner.tokens)
-    expression = parser.parse
+    statements = parser.parse
 
     return if self.error?
 
-    # puts Lox::ASTPrinter.new.print(expression)
-    self.interpreter.interpret(expression)
+    # puts Lox::ASTPrinter.new.print(statements)
+    self.interpreter.interpret(statements)
   end
 
   # keywords

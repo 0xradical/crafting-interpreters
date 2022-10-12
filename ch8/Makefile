@@ -22,4 +22,4 @@ tc: ## Type check
 	@ bundle exec srb tc
 
 ast: ## Generate Lox::Expr subclasses
-	@ bundle exec ruby -Itools -Ilib -rast -rlox -e 'Tools::AST.run' $(PWD)/lib/lox/expr.rb
+	@ bundle exec ruby -Itools -Ilib -rast -rlox -e 'Tools::AST.run' $(PWD)/lib/lox/

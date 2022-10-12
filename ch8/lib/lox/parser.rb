@@ -5,6 +5,10 @@
 #
 # Table of precedence and associativity, from lowest to highest:
 #
+# program        → statements* EOF ;
+# statement      → expression_stmt | print_stmt ;
+# print_stmt     → "print" expression ";" ;
+# expression_stm → expression ";" ;
 # expression     → comma ;
 # comma          → ternary ( "," ternary )* ;
 # ternary        → equality ( "?" equality ":" equality )* ;
@@ -35,13 +39,43 @@ module Lox
       @current = T.let(0, Integer)
     end
 
-    sig { returns(T.nilable(Lox::Expr)) }
+    # sig { returns(T.nilable(Lox::Expr)) }
+    sig { returns(T::Array[Lox::Stmt]) }
     def parse
-      expression
+      statements = T.let([], T::Array[Lox::Stmt])
+
+      while !ended?
+        statements = [*statements, statement]
+      end
+
+      statements
     # Syntax error recovery is the parser’s job, so we don’t want the ParseError exception
     # to escape into the rest of the interpreter.
     rescue Error => e
-      nil
+      []
+    end
+
+    sig { returns(Lox::Stmt) }
+    def statement
+      if current_matches?(Lox::TokenType::PRINT)
+        return print_statement
+      end
+
+      expression_statement
+    end
+
+    sig { returns(Lox::Stmt) }
+    def print_statement
+      value = expression
+      consume!(Lox::TokenType::SEMICOLON, "Expected ';' after expression")
+      Lox::Print.new(value)
+    end
+
+    sig { returns(Lox::Stmt) }
+    def expression_statement
+      value = expression
+      consume!(Lox::TokenType::SEMICOLON, "Expected ';' after expression")
+      Lox::Expression.new(value)
     end
 
     sig { returns(Lox::Expr) }
@@ -249,7 +283,7 @@ module Lox
 
     sig { returns(T::Boolean) }
     def ended?
-      peek.type == Lox::TokenType::EOF
+      peek.type == :EOF
     end
 
     ##

@@ -56,6 +56,15 @@ module Tools
           right: "Lox::Expr"
         }
       })
+
+      define_AST(directory, "Stmt", {
+        Expression: {
+          expression: "Lox::Expr"
+        },
+        Print: {
+          expression: "Lox::Expr"
+        }
+      })
     end
 
     sig {
@@ -66,7 +75,7 @@ module Tools
       ).void
     }
     def self.define_AST(directory, base_name, types)
-      File.open(directory, "w+") do |f|
+      File.open(File.join(directory,snake_case(base_name) + ".rb"), "w+") do |f|
         f.write(
           %Q{
 # typed: true
@@ -78,7 +87,7 @@ module Lox
     extend T::Helpers
 
     abstract!
-    sig { abstract.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { abstract.type_parameters(:R).params(visitor: #{base_name}Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor); end
   end
   #{types.map{|type, fields| self.define_type(base_name, type, fields) }.join("\n")}
@@ -90,7 +99,7 @@ end}
     sig { params(base_name: String, types: T::Hash[Symbol, ASTFields]).returns(String) }
     def self.define_visitor(base_name, types)
       clean(%Q{
-  module Visitor
+  module #{base_name}Visitor
     extend T::Sig
     extend T::Generic
     abstract!
@@ -115,7 +124,7 @@ end}
 #{fields.each_pair.map{|name, _| ['      @',name,' = ',name].join}.join("\n")}
     end
 
-    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { override.type_parameters(:R).params(visitor: #{base_name}Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_#{type}#{base_name}(self)
     end

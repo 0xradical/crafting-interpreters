@@ -4,17 +4,28 @@ module Lox
   class ASTPrinter
     extend T::Sig
     extend T::Generic
-    include Visitor
+    include ExprVisitor
+    include StmtVisitor
 
     R = type_member {{ fixed: String }}
 
-    sig { params(expr: T.nilable(Expr)).returns(String) }
-    def print(expr)
-      if expr
-        expr.accept(self)
-      else
-        "-- empty --"
+    sig { params(stms: T::Array[Lox::Stmt]).void }
+    def print(stms)
+      stms.each do |stmt|
+        stmt.accept(self)
       end
+    rescue RuntimeError => e
+      Lox.runtime_error(e)
+    end
+
+    sig { override.params(expr: Expression).returns(String).checked(:never) }
+    def visit_ExpressionStmt(expr)
+      expr.expression.accept(self)
+    end
+
+    sig { override.params(expr: Print).returns(String).checked(:never) }
+    def visit_PrintStmt(expr)
+      expr.expression.accept(self)
     end
 
     sig { override.params(expr: Binary).returns(String).checked(:never) }

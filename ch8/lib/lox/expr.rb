@@ -2,7 +2,7 @@
 # typed: true
 
 module Lox
-  module Visitor
+  module ExprVisitor
     extend T::Sig
     extend T::Generic
     abstract!
@@ -30,7 +30,7 @@ module Lox
     extend T::Helpers
 
     abstract!
-    sig { abstract.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { abstract.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor); end
   end
   
@@ -53,7 +53,7 @@ module Lox
       @right = right
     end
 
-    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_BinaryExpr(self)
     end
@@ -71,7 +71,7 @@ module Lox
       @expression = expression
     end
 
-    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_GroupingExpr(self)
     end
@@ -89,7 +89,7 @@ module Lox
       @value = value
     end
 
-    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_LiteralExpr(self)
     end
@@ -111,7 +111,7 @@ module Lox
       @right = right
     end
 
-    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_UnaryExpr(self)
     end
@@ -137,7 +137,7 @@ module Lox
       @right = right
     end
 
-    sig { override.type_parameters(:R).params(visitor: Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_TernaryExpr(self)
     end

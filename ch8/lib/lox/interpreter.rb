@@ -15,20 +15,41 @@ module Lox
   class Interpreter
     extend T::Sig
     extend T::Generic
-    include Visitor
+    include ExprVisitor
+    include StmtVisitor
 
     R = type_member {{ fixed: Object }}
 
-    sig { params(expr: T.nilable(Expr)).returns(Object) }
-    def interpret(expr)
-      if expr
-        value = evaluate(expr)
-        puts stringify(value)
-      else
-        nil
+    # sig { params(expr: T.nilable(Expr)).returns(Object) }
+    sig { params(stms: T::Array[Lox::Stmt]).void }
+    def interpret(stms)
+      stms.each do |stmt|
+        execute(stmt)
       end
     rescue RuntimeError => e
       Lox.runtime_error(e)
+    end
+
+    sig { params(stmt: Lox::Stmt).void }
+    def execute(stmt)
+      stmt.accept(self)
+    end
+
+    ##
+    # Unlike expressions, statements produce no values, so the return type of the visit methods is Void,
+    # not Object. We have two statement types, and we need a visit method for each. The easiest is
+    # expression statements.
+    sig { override.params(expr: Expression).returns(Object).checked(:never) }
+    def visit_ExpressionStmt(expr)
+      evaluate(expr.expression)
+      nil
+    end
+
+    sig { override.params(expr: Print).returns(Object).checked(:never) }
+    def visit_PrintStmt(expr)
+      value = evaluate(expr.expression)
+      puts stringify(value)
+      nil
     end
 
     sig { override.params(expr: Grouping).returns(Object).checked(:never) }
