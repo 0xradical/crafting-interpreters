@@ -5,21 +5,24 @@
 #
 # Table of precedence and associativity, from lowest to highest:
 #
-# program        → statements* EOF ;
-# statement      → expression_stmt | print_stmt ;
-# print_stmt     → "print" expression ";" ;
-# expression_stm → expression ";" ;
-# expression     → comma ;
-# comma          → ternary ( "," ternary )* ;
-# ternary        → equality ( "?" equality ":" equality )* ;
-# equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-# comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-# term           → factor ( ( "-" | "+" ) factor )* ;
-# factor         → unary ( ( "/" | "*" ) unary )* ;
-# unary          → ( "!" | "-" ) unary
+# program         → declarations* EOF ;
+# declaration     → var_decl | statement ;
+# var_decl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+# statement       → expression_stmt | print_stmt ;
+# print_stmt      → "print" expression ";" ;
+# expression_stmt → expression ";" ;
+# expression      → comma ;
+# comma           → ternary ( "," ternary )* ;
+# ternary         → equality ( "?" equality ":" equality )* ;
+# equality        → comparison ( ( "!=" | "==" ) comparison )* ;
+# comparison      → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+# term            → factor ( ( "-" | "+" ) factor )* ;
+# factor          → unary ( ( "/" | "*" ) unary )* ;
+# unary           → ( "!" | "-" ) unary
 #                | primary ;
 # primary        → NUMBER | STRING | "true" | "false" | "nil"
-#                | "(" expression ")" ;
+#                | "(" expression ")"
+#                | IDENTIFIER ;
 #
 module Lox
   class Parser
@@ -45,7 +48,11 @@ module Lox
       statements = T.let([], T::Array[Lox::Stmt])
 
       while !ended?
-        statements = [*statements, statement]
+        decl = declaration
+
+        if decl
+          statements = [*statements, decl]
+        end
       end
 
       statements
@@ -53,6 +60,41 @@ module Lox
     # to escape into the rest of the interpreter.
     rescue Error => e
       []
+    end
+
+    sig { returns(T.any(NilClass, Lox::Stmt)) }
+    def declaration
+      if current_matches?(Lox::TokenType::VAR)
+        return var_declaration
+      end
+
+      return statement
+    rescue Error => e
+      sync
+
+      nil
+    end
+
+    def var_declaration
+      name = T.let(
+        T.must(
+          consume!(
+            Lox::TokenType::IDENTIFIER,
+            "Expected variable name"
+          )
+        ),
+        Lox::Token
+      )
+
+      initializer = nil
+
+      if current_matches?(Lox::TokenType::EQUAL)
+        initializer = expression
+      end
+
+      consume!(Lox::TokenType::SEMICOLON, "Expected ';' after variable declaration")
+
+      Lox::Var.new(name, initializer)
     end
 
     sig { returns(Lox::Stmt) }
@@ -198,6 +240,12 @@ module Lox
       return Lox::Literal.new(true) if current_matches?(Lox::TokenType::TRUE)
       return Lox::Literal.new(false) if current_matches?(Lox::TokenType::FALSE)
       return Lox::Literal.new(nil) if current_matches?(Lox::TokenType::NIL)
+
+      if current_matches?(
+        Lox::TokenType::IDENTIFIER
+      )
+        return Lox::Variable.new(T.must(previous))
+      end
 
       if current_matches?(
         Lox::TokenType::STRING,

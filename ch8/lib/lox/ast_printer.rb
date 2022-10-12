@@ -18,14 +18,28 @@ module Lox
       Lox.runtime_error(e)
     end
 
-    sig { override.params(expr: Expression).returns(String).checked(:never) }
-    def visit_ExpressionStmt(expr)
-      expr.expression.accept(self)
+    sig { override.params(stmt: Expression).returns(String).checked(:never) }
+    def visit_ExpressionStmt(stmt)
+      stmt.expression.accept(self)
     end
 
-    sig { override.params(expr: Print).returns(String).checked(:never) }
-    def visit_PrintStmt(expr)
-      expr.expression.accept(self)
+    sig { override.params(stmt: Print).returns(String).checked(:never) }
+    def visit_PrintStmt(stmt)
+      stmt.expression.accept(self)
+    end
+
+    sig { override.params(stmt: Var).returns(String).checked(:never) }
+    def visit_VarStmt(stmt)
+      if stmt.initializer
+        parenthesize("var #{stmt.name}", T.must(stmt.initializer))
+      else
+        parenthesize("var #{stmt.name}")
+      end
+    end
+
+    sig { override.params(expr: Variable).returns(String).checked(:never) }
+    def visit_VariableExpr(expr)
+      expr.name.lexeme || ""
     end
 
     sig { override.params(expr: Binary).returns(String).checked(:never) }

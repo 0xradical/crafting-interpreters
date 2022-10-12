@@ -54,6 +54,9 @@ module Tools
           clause: "Lox::Expr",
           left: "Lox::Expr",
           right: "Lox::Expr"
+        },
+        Variable: {
+          name: "Lox::Token"
         }
       })
 
@@ -63,6 +66,10 @@ module Tools
         },
         Print: {
           expression: "Lox::Expr"
+        },
+        Var: {
+          name: "Lox::Token",
+          initializer: "T.nilable(Lox::Expr)"
         }
       })
     end
@@ -106,7 +113,7 @@ end}
 
     R = type_member(:out) {{ upper: T.untyped }}
 
-#{types.each_pair.map{|name, _| ["    sig { abstract.params(expr: #{name}).returns(R) }\n", "    def visit_#{name}#{base_name}(expr); end"].join}.join("\n\n")}
+#{types.each_pair.map{|name, _| ["    sig { abstract.params(#{snake_case(base_name)}: #{name}).returns(R) }\n", "    def visit_#{name}#{base_name}(#{snake_case(base_name)}); end"].join}.join("\n\n")}
   end
       })
     end

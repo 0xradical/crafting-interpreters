@@ -9,11 +9,14 @@ module Lox
 
     R = type_member(:out) {{ upper: T.untyped }}
 
-    sig { abstract.params(expr: Expression).returns(R) }
-    def visit_ExpressionStmt(expr); end
+    sig { abstract.params(stmt: Expression).returns(R) }
+    def visit_ExpressionStmt(stmt); end
 
-    sig { abstract.params(expr: Print).returns(R) }
-    def visit_PrintStmt(expr); end
+    sig { abstract.params(stmt: Print).returns(R) }
+    def visit_PrintStmt(stmt); end
+
+    sig { abstract.params(stmt: Var).returns(R) }
+    def visit_VarStmt(stmt); end
   end
       
   class Stmt
@@ -57,6 +60,28 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_PrintStmt(self)
+    end
+  end
+      
+
+  class Var < Stmt
+    extend T::Sig
+
+    sig { returns(Lox::Token) }
+    attr_reader :name
+
+    sig { returns(T.nilable(Lox::Expr)) }
+    attr_reader :initializer
+
+    sig { params(name: Lox::Token,initializer: T.nilable(Lox::Expr)).void }
+    def initialize(name,initializer)
+      @name = name
+      @initializer = initializer
+    end
+
+    sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_VarStmt(self)
     end
   end
       

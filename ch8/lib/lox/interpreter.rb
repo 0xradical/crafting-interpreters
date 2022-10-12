@@ -20,6 +20,13 @@ module Lox
 
     R = type_member {{ fixed: Object }}
 
+    sig { returns(Lox::Environment) }
+    attr_reader :environment
+
+    def initialize
+      @environment = Environment.new
+    end
+
     # sig { params(expr: T.nilable(Expr)).returns(Object) }
     sig { params(stms: T::Array[Lox::Stmt]).void }
     def interpret(stms)
@@ -39,17 +46,34 @@ module Lox
     # Unlike expressions, statements produce no values, so the return type of the visit methods is Void,
     # not Object. We have two statement types, and we need a visit method for each. The easiest is
     # expression statements.
-    sig { override.params(expr: Expression).returns(Object).checked(:never) }
-    def visit_ExpressionStmt(expr)
-      evaluate(expr.expression)
+    sig { override.params(stmt: Expression).returns(Object).checked(:never) }
+    def visit_ExpressionStmt(stmt)
+      evaluate(stmt.expression)
       nil
     end
 
-    sig { override.params(expr: Print).returns(Object).checked(:never) }
-    def visit_PrintStmt(expr)
-      value = evaluate(expr.expression)
+    sig { override.params(stmt: Print).returns(Object).checked(:never) }
+    def visit_PrintStmt(stmt)
+      value = evaluate(stmt.expression)
       puts stringify(value)
       nil
+    end
+
+    sig { override.params(stmt: Var).returns(Object).checked(:never) }
+    def visit_VarStmt(stmt)
+      value = nil
+
+      if stmt.initializer
+        value = evaluate(T.must(stmt.initializer))
+      end
+
+      environment.define(T.must(stmt.name.lexeme), value)
+      nil
+    end
+
+    sig { override.params(expr: Variable).returns(Object).checked(:never) }
+    def visit_VariableExpr(expr)
+      environment.get(expr.name)
     end
 
     sig { override.params(expr: Grouping).returns(Object).checked(:never) }
