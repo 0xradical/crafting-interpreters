@@ -26,6 +26,9 @@ module Lox
 
     sig { abstract.params(expr: Variable).returns(R) }
     def visit_VariableExpr(expr); end
+
+    sig { abstract.params(expr: Assign).returns(R) }
+    def visit_AssignExpr(expr); end
   end
       
   class Expr
@@ -161,6 +164,28 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_VariableExpr(self)
+    end
+  end
+      
+
+  class Assign < Expr
+    extend T::Sig
+
+    sig { returns(Lox::Token) }
+    attr_reader :name
+
+    sig { returns(Lox::Expr) }
+    attr_reader :value
+
+    sig { params(name: Lox::Token,value: Lox::Expr).void }
+    def initialize(name,value)
+      @name = name
+      @value = value
+    end
+
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_AssignExpr(self)
     end
   end
       

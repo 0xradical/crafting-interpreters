@@ -57,6 +57,10 @@ module Tools
         },
         Variable: {
           name: "Lox::Token"
+        },
+        Assign: {
+          name: "Lox::Token",
+          value: "Lox::Expr"
         }
       })
 

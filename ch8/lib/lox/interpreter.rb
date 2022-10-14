@@ -71,6 +71,16 @@ module Lox
       nil
     end
 
+    ##
+    # An assignment is an expression, which evaluates to the r-value
+    #
+    sig { override.params(expr: Assign).returns(Object).checked(:never) }
+    def visit_AssignExpr(expr)
+      value = evaluate(expr.value)
+      environment.assign(expr.name, value)
+      value
+    end
+
     sig { override.params(expr: Variable).returns(Object).checked(:never) }
     def visit_VariableExpr(expr)
       environment.get(expr.name)

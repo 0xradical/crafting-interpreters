@@ -133,7 +133,7 @@ module Lox
 
     return if self.error?
 
-    # puts Lox::ASTPrinter.new.print(statements)
+    Lox::ASTPrinter.new.print(statements)
     self.interpreter.interpret(statements)
   end
 

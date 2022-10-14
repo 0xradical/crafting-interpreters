@@ -12,8 +12,9 @@ module Lox
     sig { params(stms: T::Array[Lox::Stmt]).void }
     def print(stms)
       stms.each do |stmt|
-        stmt.accept(self)
+        puts stmt.accept(self)
       end
+      nil
     rescue RuntimeError => e
       Lox.runtime_error(e)
     end
@@ -31,10 +32,15 @@ module Lox
     sig { override.params(stmt: Var).returns(String).checked(:never) }
     def visit_VarStmt(stmt)
       if stmt.initializer
-        parenthesize("var #{stmt.name}", T.must(stmt.initializer))
+        parenthesize("var #{stmt.name.lexeme}", T.must(stmt.initializer))
       else
-        parenthesize("var #{stmt.name}")
+        parenthesize("var #{stmt.name.lexeme}")
       end
+    end
+
+    sig { override.params(expr: Assign).returns(String).checked(:never) }
+    def visit_AssignExpr(expr)
+      parenthesize("= #{expr.name.lexeme}", expr.value)
     end
 
     sig { override.params(expr: Variable).returns(String).checked(:never) }

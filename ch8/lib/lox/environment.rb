@@ -17,6 +17,19 @@ module Lox
       @values[name] = value
     end
 
+    sig { params(name: Lox::Token, value: T.untyped).void }
+    def assign(name, value)
+      if @values.key?(T.must(name.lexeme))
+        @values[T.must(name.lexeme)] = value
+        return
+      end
+
+      raise RuntimeError.new(
+        name,
+        "Undefined variable '#{name.lexeme}'"
+      )
+    end
+
     sig { params(name: Lox::Token).returns(T.untyped) }
     def get(name)
       return @values[T.must(name.lexeme)] if @values.key?(T.must(name.lexeme))

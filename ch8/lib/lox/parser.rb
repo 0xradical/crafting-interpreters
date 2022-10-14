@@ -11,9 +11,10 @@
 # statement       → expression_stmt | print_stmt ;
 # print_stmt      → "print" expression ";" ;
 # expression_stmt → expression ";" ;
-# expression      → comma ;
+# expression      → assignment ;
+# assignment      → IDENTIFIER "=" assignment | comma ;
 # comma           → ternary ( "," ternary )* ;
-# ternary         → equality ( "?" equality ":" equality )* ;
+# ternary         → equality ( "?" equality ":" ternary )* ;
 # equality        → comparison ( ( "!=" | "==" ) comparison )* ;
 # comparison      → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 # term            → factor ( ( "-" | "+" ) factor )* ;
@@ -122,7 +123,43 @@ module Lox
 
     sig { returns(Lox::Expr) }
     def expression
-      comma
+      # comma
+      assignment
+    end
+
+    ##
+    # An l-value might be something complex, like this:
+    # makeList().head.next = node;
+    # But in a single-token look ahead, descent recursive parser,
+    # we might not know that an l-value is a valid assignment target
+    # So the trick is to parse the left-hand side as if it's an expression
+    # If we bump into a "=" sign and
+    # the expression evaluated is a valid assingment target
+    # (currently only true if expr === Lox::Variable)
+    # then we discard the whole expression and create a new node
+    # that represents an assignment
+    # otherwise it's an incorrect assignment
+    sig { returns(Lox::Expr) }
+    def assignment
+      expr = comma
+
+      # if we bump into a "=" sign, then
+      # we check if the right value is a variable
+      if current_matches?(Lox::TokenType::EQUAL)
+        equals = previous
+        # right associative , like ternary
+        # so we call assignment recursively
+        value = assignment
+
+        if expr.is_a?(Lox::Variable)
+          name = T.cast(expr, Lox::Variable).name
+          return Lox::Assign.new(name, value)
+        end
+
+        error(equals, "Invalid assignment target")
+      end
+
+      expr
     end
 
     sig { returns(Lox::Expr) }
