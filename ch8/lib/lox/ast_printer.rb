@@ -9,10 +9,17 @@ module Lox
 
     R = type_member {{ fixed: String }}
 
+    sig { returns(Integer) }
+    attr_accessor :indent
+
+    def initialize
+      @indent = 0
+    end
+
     sig { params(stms: T::Array[Lox::Stmt]).void }
     def print(stms)
       stms.each do |stmt|
-        puts stmt.accept(self)
+        puts " " * self.indent + stmt.accept(self)
       end
       nil
     rescue RuntimeError => e
@@ -35,6 +42,31 @@ module Lox
         parenthesize("var #{stmt.name.lexeme}", T.must(stmt.initializer))
       else
         parenthesize("var #{stmt.name.lexeme}")
+      end
+    end
+
+    sig { override.params(stmt: Block).returns(String).checked(:never) }
+    def visit_BlockStmt(stmt)
+      inner = visit_BlockStmtRecursively(stmt, self.indent + 2)
+
+      [
+        " " * (self.indent == 0 ? self.indent : self.indent - 2) + "{",
+        inner,
+        " " * self.indent + "}"
+      ].join("\n")
+    end
+
+    sig { params(stmt: Block, indent: Integer).returns(String) }
+    def visit_BlockStmtRecursively(stmt, indent = 0)
+      previous = self.indent
+      self.indent = indent
+
+      begin
+        stmt.statements.map do |statement|
+          " " * indent + statement.accept(self)
+        end.join("\n")
+      ensure
+        self.indent = previous
       end
     end
 

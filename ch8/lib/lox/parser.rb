@@ -5,10 +5,11 @@
 #
 # Table of precedence and associativity, from lowest to highest:
 #
-# program         → declarations* EOF ;
+# program         → declaration* EOF ;
 # declaration     → var_decl | statement ;
 # var_decl        → "var" IDENTIFIER ( "=" expression )? ";" ;
-# statement       → expression_stmt | print_stmt ;
+# statement       → expression_stmt | print_stmt | block ;
+# block           → "{" declaration* "}" ;
 # print_stmt      → "print" expression ";" ;
 # expression_stmt → expression ";" ;
 # expression      → assignment ;
@@ -104,7 +105,27 @@ module Lox
         return print_statement
       end
 
+      if current_matches?(Lox::TokenType::LEFT_BRACE)
+        return Lox::Block.new(block)
+      end
+
       expression_statement
+    end
+
+    sig { returns(T::Array[Lox::Stmt]) }
+    def block
+      stmts = T.let([], T::Array[Lox::Stmt])
+
+      while !check(Lox::TokenType::RIGHT_BRACE) && !ended?
+        decl = declaration
+        if decl
+          stmts = [*stmts, decl]
+        end
+      end
+
+      consume!(Lox::TokenType::RIGHT_BRACE, "Expected '}' after block")
+
+      stmts
     end
 
     sig { returns(Lox::Stmt) }

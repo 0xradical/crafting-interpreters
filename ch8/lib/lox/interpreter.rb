@@ -21,13 +21,12 @@ module Lox
     R = type_member {{ fixed: Object }}
 
     sig { returns(Lox::Environment) }
-    attr_reader :environment
+    attr_accessor :environment
 
     def initialize
       @environment = Environment.new
     end
 
-    # sig { params(expr: T.nilable(Expr)).returns(Object) }
     sig { params(stms: T::Array[Lox::Stmt]).void }
     def interpret(stms)
       stms.each do |stmt|
@@ -40,6 +39,21 @@ module Lox
     sig { params(stmt: Lox::Stmt).void }
     def execute(stmt)
       stmt.accept(self)
+    end
+
+    sig { params(statements: T::Array[Lox::Stmt], environment: Lox::Environment).void }
+    def execute_block(statements, environment)
+      previous = self.environment
+
+      begin
+        self.environment = environment
+
+        statements.each do |statement|
+          execute(statement)
+        end
+      ensure
+        self.environment = previous
+      end
     end
 
     ##
@@ -68,6 +82,12 @@ module Lox
       end
 
       environment.define(T.must(stmt.name.lexeme), value)
+      nil
+    end
+
+    sig { override.params(stmt: Block).returns(Object).checked(:never) }
+    def visit_BlockStmt(stmt)
+      execute_block(stmt.statements, Lox::Environment.new(environment))
       nil
     end
 

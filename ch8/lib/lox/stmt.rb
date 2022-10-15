@@ -17,6 +17,9 @@ module Lox
 
     sig { abstract.params(stmt: Var).returns(R) }
     def visit_VarStmt(stmt); end
+
+    sig { abstract.params(stmt: Block).returns(R) }
+    def visit_BlockStmt(stmt); end
   end
       
   class Stmt
@@ -82,6 +85,24 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_VarStmt(self)
+    end
+  end
+      
+
+  class Block < Stmt
+    extend T::Sig
+
+    sig { returns(T::Array[Lox::Stmt]) }
+    attr_reader :statements
+
+    sig { params(statements: T::Array[Lox::Stmt]).void }
+    def initialize(statements)
+      @statements = statements
+    end
+
+    sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_BlockStmt(self)
     end
   end
       

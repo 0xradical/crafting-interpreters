@@ -74,6 +74,9 @@ module Tools
         Var: {
           name: "Lox::Token",
           initializer: "T.nilable(Lox::Expr)"
+        },
+        Block: {
+          statements: "T::Array[Lox::Stmt]"
         }
       })
     end
