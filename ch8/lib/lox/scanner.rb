@@ -10,7 +10,10 @@ module Lox
     sig { returns(Integer) }
     attr_reader :length
 
-    attr_accessor :start, :current, :line
+    sig { returns(Integer) }
+    attr_accessor :line
+
+    attr_accessor :start, :current
 
     def initialize(source)
       @source = source

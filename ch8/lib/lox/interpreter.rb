@@ -75,12 +75,7 @@ module Lox
 
     sig { override.params(stmt: Var).returns(Object).checked(:never) }
     def visit_VarStmt(stmt)
-      value = nil
-
-      if stmt.initializer
-        value = evaluate(T.must(stmt.initializer))
-      end
-
+      value = evaluate(T.must(stmt.initializer))
       environment.define(T.must(stmt.name.lexeme), value)
       nil
     end
@@ -89,6 +84,11 @@ module Lox
     def visit_BlockStmt(stmt)
       execute_block(stmt.statements, Lox::Environment.new(environment))
       nil
+    end
+
+    sig { override.params(expr: Unknown).returns(Object).checked(:never) }
+    def visit_UnknownExpr(expr)
+      expr
     end
 
     ##

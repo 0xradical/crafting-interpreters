@@ -73,10 +73,10 @@ module Lox
     sig { returns(Lox::Token) }
     attr_reader :name
 
-    sig { returns(T.nilable(Lox::Expr)) }
+    sig { returns(Lox::Expr) }
     attr_reader :initializer
 
-    sig { params(name: Lox::Token,initializer: T.nilable(Lox::Expr)).void }
+    sig { params(name: Lox::Token,initializer: Lox::Expr).void }
     def initialize(name,initializer)
       @name = name
       @initializer = initializer

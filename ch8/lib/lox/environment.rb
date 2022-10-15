@@ -46,7 +46,19 @@ module Lox
 
     sig { params(name: Lox::Token).returns(T.untyped) }
     def get(name)
-      return @values[T.must(name.lexeme)] if @values.key?(T.must(name.lexeme))
+      if @values.key?(T.must(name.lexeme))
+        val = @values[T.must(name.lexeme)]
+
+        case val
+        when Lox::Unknown
+          raise RuntimeError.new(
+            name,
+            "Accessing unitialized variable '#{name.lexeme}'"
+          )
+        end
+
+        return val
+      end
 
       # if didn't find, look up the enclosing branch up the tree
       if enclosing

@@ -70,6 +70,11 @@ module Lox
       end
     end
 
+    sig { override.params(expr: Unknown).returns(String).checked(:never) }
+    def visit_UnknownExpr(expr)
+      "\0"
+    end
+
     sig { override.params(expr: Assign).returns(String).checked(:never) }
     def visit_AssignExpr(expr)
       parenthesize("= #{expr.name.lexeme}", expr.value)

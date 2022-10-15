@@ -88,7 +88,7 @@ module Lox
         Lox::Token
       )
 
-      initializer = nil
+      initializer = Lox::Unknown.new
 
       if current_matches?(Lox::TokenType::EQUAL)
         initializer = expression
@@ -432,11 +432,14 @@ module Lox
       loop do
         break if previous.nil?
         break if T.must(previous).type == :SEMICOLON
+        break if ended?
 
         case peek.type
         when :CLASS, :FUN, :VAR, :FOR, :IF, :WHILE, :PRINT, :RETURN
           break
         end
+
+        consume
       end
     end
   end

@@ -29,6 +29,9 @@ module Lox
 
     sig { abstract.params(expr: Assign).returns(R) }
     def visit_AssignExpr(expr); end
+
+    sig { abstract.params(expr: Unknown).returns(R) }
+    def visit_UnknownExpr(expr); end
   end
       
   class Expr
@@ -186,6 +189,16 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_AssignExpr(self)
+    end
+  end
+      
+
+  class Unknown < Expr
+    extend T::Sig
+
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_UnknownExpr(self)
     end
   end
       

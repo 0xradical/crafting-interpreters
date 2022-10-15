@@ -65,11 +65,11 @@ module Lox
     end
   end
 
-  sig { params(line: T.any(String, Lox::Token), message: String).void }
+  sig { params(line: T.any(String, Lox::Token, Integer), message: String).void }
   def self.error(line, message)
     case line
-    when String
-      report(line, "", message)
+    when String, Integer
+      report(line.to_s, "", message)
     when Lox::Token
       if line.type == Lox::TokenType::IDS[Lox::TokenType::EOF]
         report(line.line," at end", message)
@@ -83,7 +83,7 @@ module Lox
 
   sig { params(error: Lox::RuntimeError).void }
   def self.runtime_error(error)
-    STDERR.puts "#{error.message}\n[line #{error.token.line} ]"
+    STDERR.puts "#{error.message}\n[line #{error.token.line}]"
     self.runtime_error = true
   end
 
@@ -133,8 +133,16 @@ module Lox
 
     return if self.error?
 
-    Lox::ASTPrinter.new.print(statements)
-    self.interpreter.interpret(statements)
+    # Lox::ASTPrinter.new.print(statements)
+    if statements.length == 1 && statements[0].is_a?(Lox::Expression)
+      begin
+        puts self.interpreter.evaluate(T.cast(T.must(statements[0]), Lox::Expression).expression)
+      rescue RuntimeError => e
+        Lox.runtime_error(e)
+      end
+    else
+      self.interpreter.interpret(statements)
+    end
   end
 
   # keywords

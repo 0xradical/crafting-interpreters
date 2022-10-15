@@ -61,6 +61,9 @@ module Tools
         Assign: {
           name: "Lox::Token",
           value: "Lox::Expr"
+        },
+        Unknown: {
+
         }
       })
 
@@ -73,7 +76,7 @@ module Tools
         },
         Var: {
           name: "Lox::Token",
-          initializer: "T.nilable(Lox::Expr)"
+          initializer: "Lox::Expr"
         },
         Block: {
           statements: "T::Array[Lox::Stmt]"
@@ -127,6 +130,7 @@ end}
 
     sig { params(base_name: String, type: Symbol, fields: ASTFields).returns(String) }
     def self.define_type(base_name, type, fields)
+      if fields.length > 0
       %Q{
   class #{type} < #{base_name}
     extend T::Sig
@@ -144,6 +148,18 @@ end}
     end
   end
       }
+      else
+%Q{
+  class #{type} < #{base_name}
+    extend T::Sig
+
+    sig { override.type_parameters(:R).params(visitor: #{base_name}Visitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_#{type}#{base_name}(self)
+    end
+  end
+      }
+      end
     end
 
     ##
