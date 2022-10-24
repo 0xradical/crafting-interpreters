@@ -12,6 +12,9 @@ module Lox
     sig { abstract.params(expr: Binary).returns(R) }
     def visit_BinaryExpr(expr); end
 
+    sig { abstract.params(expr: Logical).returns(R) }
+    def visit_LogicalExpr(expr); end
+
     sig { abstract.params(expr: Grouping).returns(R) }
     def visit_GroupingExpr(expr); end
 
@@ -65,6 +68,32 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_BinaryExpr(self)
+    end
+  end
+      
+
+  class Logical < Expr
+    extend T::Sig
+
+    sig { returns(Lox::Expr) }
+    attr_reader :left
+
+    sig { returns(Lox::Token) }
+    attr_reader :operator
+
+    sig { returns(Lox::Expr) }
+    attr_reader :right
+
+    sig { params(left: Lox::Expr,operator: Lox::Token,right: Lox::Expr).void }
+    def initialize(left,operator,right)
+      @left = left
+      @operator = operator
+      @right = right
+    end
+
+    sig { override.type_parameters(:R).params(visitor: ExprVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_LogicalExpr(self)
     end
   end
       

@@ -14,7 +14,9 @@
 # if_stmt         → "if" "(" expression ")" statement ( "else" statement )? ;
 # expression_stmt → expression ";" ;
 # expression      → assignment ;
-# assignment      → IDENTIFIER "=" assignment | comma ;
+# assignment      → IDENTIFIER "=" assignment | logic_or ;
+# logic_or        → logic_and ( "or" logic_and )* ;
+# logic_and       → comma ( "and" comma )* ;
 # comma           → ternary ( "," ternary )* ;
 # ternary         → equality ( "?" equality ":" ternary )* ;
 # equality        → comparison ( ( "!=" | "==" ) comparison )* ;
@@ -166,7 +168,6 @@ module Lox
 
     sig { returns(Lox::Expr) }
     def expression
-      # comma
       assignment
     end
 
@@ -184,7 +185,7 @@ module Lox
     # otherwise it's an incorrect assignment
     sig { returns(Lox::Expr) }
     def assignment
-      expr = comma
+      expr = logic_or
 
       # if we bump into a "=" sign, then
       # we check if the right value is a variable
@@ -200,6 +201,32 @@ module Lox
         end
 
         error(equals, "Invalid assignment target")
+      end
+
+      expr
+    end
+
+    sig { returns(Lox::Expr) }
+    def logic_or
+      expr = logic_and
+
+      while current_matches?(Lox::TokenType::OR)
+        operator = T.must(previous)
+        right = logic_and
+        expr = Lox::Logical.new(expr, operator, right)
+      end
+
+      expr
+    end
+
+    sig { returns(Lox::Expr) }
+    def logic_and
+      expr = comma
+
+      while current_matches?(Lox::TokenType::AND)
+        operator = T.must(previous)
+        right = comma
+        expr = Lox::Logical.new(expr, operator, right)
       end
 
       expr

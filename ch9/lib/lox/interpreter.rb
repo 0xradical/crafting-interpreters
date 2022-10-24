@@ -190,6 +190,28 @@ module Lox
       end
     end
 
+    ##
+    # Here, we evaluate the left operand first. We look at its value to see if we can short-circuit. If not, and only then, do we evaluate the right operand.
+    #
+    # @param expr TODO
+    # @return TODO
+    sig { override.params(expr: Logical).returns(Object).checked(:never) }
+    def visit_LogicalExpr(expr)
+      left = evaluate(expr.left)
+
+      if (expr.operator.type == :OR)
+        if truthy?(left)
+          return left
+        end
+      else
+        if !truthy?(left)
+          return left
+        end
+      end
+
+      return evaluate(expr.right)
+    end
+
     sig { override.params(expr: Ternary).returns(Object).checked(:never) }
     def visit_TernaryExpr(expr)
       truthy?(evaluate(expr.clause)) ? evaluate(expr.left) : evaluate(expr.right)

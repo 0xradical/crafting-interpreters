@@ -40,6 +40,11 @@ module Tools
           operator: "Lox::Token",
           right: "Lox::Expr"
         },
+        Logical: {
+          left: "Lox::Expr",
+          operator: "Lox::Token",
+          right: "Lox::Expr"
+        },
         Grouping: {
           expression: "Lox::Expr"
         },

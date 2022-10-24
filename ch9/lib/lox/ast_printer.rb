@@ -104,6 +104,21 @@ module Lox
       end
     end
 
+    sig { override.params(expr: Logical).returns(String).checked(:never) }
+    def visit_LogicalExpr(expr)
+      logical = expr.left.accept(self)
+
+      if (expr.operator.type == :OR)
+        logical += " or "
+      else
+        logical += " and "
+      end
+
+      logical += expr.right.accept(self)
+
+      return "(#{logical})"
+    end
+
     sig { override.params(expr: Grouping).returns(String).checked(:never) }
     def visit_GroupingExpr(expr)
       parenthesize("group", expr.expression)
