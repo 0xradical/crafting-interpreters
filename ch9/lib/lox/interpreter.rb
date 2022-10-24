@@ -192,6 +192,7 @@ module Lox
 
     sig { override.params(expr: Ternary).returns(Object).checked(:never) }
     def visit_TernaryExpr(expr)
+      truthy?(evaluate(expr.clause)) ? evaluate(expr.left) : evaluate(expr.right)
     end
 
     sig { params(expr: Expr).returns(Object) }
