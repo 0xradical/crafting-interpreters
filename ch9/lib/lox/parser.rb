@@ -8,10 +8,12 @@
 # program         → declaration* EOF ;
 # declaration     → var_decl | statement ;
 # var_decl        → "var" IDENTIFIER ( "=" expression )? ";" ;
-# statement       → expression_stmt | if_stmt | print_stmt | block ;
+# statement       → expression_stmt | if_stmt | print_stmt | while_stmt | for_stmt | block ;
 # block           → "{" declaration* "}" ;
 # print_stmt      → "print" expression ";" ;
 # if_stmt         → "if" "(" expression ")" statement ( "else" statement )? ;
+# while_stmt      → "while" "(" expression ")" statement ;
+# for_stmt        → "for" "(" ( var_decl | expression_stmt | ";" ) expression? ";" expression? ")" statement ;
 # expression_stmt → expression ";" ;
 # expression      → assignment ;
 # assignment      → IDENTIFIER "=" assignment | logic_or ;
@@ -112,6 +114,14 @@ module Lox
         return print_statement
       end
 
+      if current_matches?(Lox::TokenType::WHILE)
+        return while_statement
+      end
+
+      if current_matches?(Lox::TokenType::FOR)
+        return for_statement
+      end
+
       if current_matches?(Lox::TokenType::LEFT_BRACE)
         return Lox::Block.new(block)
       end
@@ -164,6 +174,67 @@ module Lox
       value = expression
       consume!(Lox::TokenType::SEMICOLON, "Expected ';' after expression")
       Lox::Expression.new(value)
+    end
+
+    sig { returns(Lox::Stmt) }
+    def while_statement
+      consume!(Lox::TokenType::LEFT_PAREN, "Expected '(' after 'while'")
+      condition = expression
+      consume!(Lox::TokenType::RIGHT_PAREN, "Expected ')' after while condition")
+
+      body = statement
+
+      Lox::While.new(condition, body)
+    end
+
+    sig { returns(Lox::Stmt) }
+    def for_statement
+      consume!(Lox::TokenType::LEFT_PAREN, "Expected '(' after 'for'")
+
+      initializer = T.let(nil, T.nilable(Lox::Stmt))
+
+      if current_matches?(Lox::TokenType::SEMICOLON)
+        initializer = nil
+      elsif current_matches?(Lox::TokenType::VAR)
+        initializer = var_declaration
+      else
+        initializer = expression_statement
+      end
+
+      condition = T.let(nil, T.nilable(Lox::Expr))
+      if !check(Lox::TokenType::SEMICOLON)
+        condition = expression
+      end
+      consume!(Lox::TokenType::SEMICOLON, "Expected ';' after for loop condition.");
+
+      increment = T.let(nil, T.nilable(Lox::Expr))
+      if !check(Lox::TokenType::RIGHT_PAREN)
+        increment = expression
+      end
+
+      consume!(Lox::TokenType::RIGHT_PAREN, "Expected ')' after for loop clauses.");
+
+      body = statement
+
+      if increment
+        body = Lox::Block.new(
+          [ body, Lox::Expression.new(increment) ]
+        )
+      end
+
+      if condition.nil?
+        condition = Lox::Literal.new(true)
+      end
+
+      body = Lox::While.new(condition, body)
+
+      if initializer
+        body = Lox::Block.new(
+          [ initializer, body ]
+        )
+      end
+
+      body
     end
 
     sig { returns(Lox::Expr) }

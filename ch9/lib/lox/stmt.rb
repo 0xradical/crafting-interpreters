@@ -23,6 +23,9 @@ module Lox
 
     sig { abstract.params(stmt: If).returns(R) }
     def visit_IfStmt(stmt); end
+
+    sig { abstract.params(stmt: While).returns(R) }
+    def visit_WhileStmt(stmt); end
   end
       
   class Stmt
@@ -132,6 +135,28 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_IfStmt(self)
+    end
+  end
+      
+
+  class While < Stmt
+    extend T::Sig
+
+    sig { returns(Lox::Expr) }
+    attr_reader :condition
+
+    sig { returns(Lox::Stmt) }
+    attr_reader :body
+
+    sig { params(condition: Lox::Expr,body: Lox::Stmt).void }
+    def initialize(condition,body)
+      @condition = condition
+      @body = body
+    end
+
+    sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_WhileStmt(self)
     end
   end
       

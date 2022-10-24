@@ -90,6 +90,10 @@ module Tools
           condition: "Lox::Expr",
           then_branch: "Lox::Stmt",
           else_branch: "T.nilable(Lox::Stmt)"
+        },
+        While: {
+          condition: "Lox::Expr",
+          body: "Lox::Stmt"
         }
       })
     end

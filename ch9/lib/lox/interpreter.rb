@@ -99,6 +99,15 @@ module Lox
       nil
     end
 
+    sig { override.params(stmt: While).returns(Object).checked(:never) }
+    def visit_WhileStmt(stmt)
+      while truthy?(evaluate(stmt.condition))
+        execute(stmt.body)
+      end
+
+      nil
+    end
+
     sig { override.params(expr: Unknown).returns(Object).checked(:never) }
     def visit_UnknownExpr(expr)
       expr

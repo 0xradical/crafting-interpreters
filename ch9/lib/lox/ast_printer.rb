@@ -66,6 +66,11 @@ module Lox
       if_stmt
     end
 
+    sig { override.params(stmt: While).returns(String).checked(:never) }
+    def visit_WhileStmt(stmt)
+      "while (#{stmt.condition.accept(self)}) #{stmt.body.accept(self)}"
+    end
+
     sig { params(stmt: Block, indent: Integer).returns(String) }
     def visit_BlockStmtRecursively(stmt, indent = 0)
       previous = self.indent
