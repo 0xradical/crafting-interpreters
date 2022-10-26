@@ -227,6 +227,7 @@ module Lox
         elsif alpha?(c)
           # we begin by assuming any lexeme starting
           # with a letter or underscore is an identifier
+          # which might be a keyword or a var
           identifier
         else
           return Lox.error(line, "Unexpected character.")

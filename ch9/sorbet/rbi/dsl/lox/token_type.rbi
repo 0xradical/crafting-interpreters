@@ -8,6 +8,7 @@ module Lox::TokenType
   AND = T.let(T.unsafe(nil), ::Lox::TokenType::Value)
   BANG = T.let(T.unsafe(nil), ::Lox::TokenType::Value)
   BANG_EQUAL = T.let(T.unsafe(nil), ::Lox::TokenType::Value)
+  BREAK = T.let(T.unsafe(nil), ::Lox::TokenType::Value)
   CLASS = T.let(T.unsafe(nil), ::Lox::TokenType::Value)
   COLON = T.let(T.unsafe(nil), ::Lox::TokenType::Value)
   COMMA = T.let(T.unsafe(nil), ::Lox::TokenType::Value)

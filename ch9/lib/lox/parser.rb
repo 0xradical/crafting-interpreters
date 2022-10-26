@@ -8,12 +8,13 @@
 # program         → declaration* EOF ;
 # declaration     → var_decl | statement ;
 # var_decl        → "var" IDENTIFIER ( "=" expression )? ";" ;
-# statement       → expression_stmt | if_stmt | print_stmt | while_stmt | for_stmt | block ;
+# statement       → expression_stmt | if_stmt | print_stmt | while_stmt | for_stmt | jump_stmt | block ;
 # block           → "{" declaration* "}" ;
 # print_stmt      → "print" expression ";" ;
 # if_stmt         → "if" "(" expression ")" statement ( "else" statement )? ;
 # while_stmt      → "while" "(" expression ")" statement ;
 # for_stmt        → "for" "(" ( var_decl | expression_stmt | ";" ) expression? ";" expression? ")" statement ;
+# jump_stmt       → "break" ";" ;
 # expression_stmt → expression ";" ;
 # expression      → assignment ;
 # assignment      → IDENTIFIER "=" assignment | logic_or ;
@@ -110,6 +111,10 @@ module Lox
         return if_statement
       end
 
+      if current_matches?(Lox::TokenType::BREAK)
+        return break_statement
+      end
+
       if current_matches?(Lox::TokenType::PRINT)
         return print_statement
       end
@@ -159,6 +164,13 @@ module Lox
       end
 
       Lox::If.new(condition, then_branch, else_branch)
+    end
+
+
+    sig { returns(Lox::Stmt) }
+    def break_statement
+      consume!(Lox::TokenType::SEMICOLON, "Expected ';' after 'break'")
+      Lox::Break.new
     end
 
 

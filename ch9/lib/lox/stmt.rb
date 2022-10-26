@@ -26,6 +26,9 @@ module Lox
 
     sig { abstract.params(stmt: While).returns(R) }
     def visit_WhileStmt(stmt); end
+
+    sig { abstract.params(stmt: Break).returns(R) }
+    def visit_BreakStmt(stmt); end
   end
       
   class Stmt
@@ -157,6 +160,16 @@ module Lox
     sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_WhileStmt(self)
+    end
+  end
+      
+
+  class Break < Stmt
+    extend T::Sig
+
+    sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
+    def accept(visitor)
+      visitor.visit_BreakStmt(self)
     end
   end
       

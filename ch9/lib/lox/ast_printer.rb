@@ -85,6 +85,11 @@ module Lox
       end
     end
 
+    sig { override.params(stmt: Break).returns(String).checked(:never) }
+    def visit_BreakStmt(stmt)
+      "break"
+    end
+
     sig { override.params(expr: Unknown).returns(String).checked(:never) }
     def visit_UnknownExpr(expr)
       "\0"

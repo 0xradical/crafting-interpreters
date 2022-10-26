@@ -54,6 +54,7 @@ module Lox
       :TRUE,
       :VAR,
       :WHILE,
+      :BREAK,
 
 
       :EOF

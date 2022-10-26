@@ -15,10 +15,10 @@ module Lox
   class RuntimeError < StandardError
     extend T::Sig
 
-    sig { returns(Lox::Token) }
+    sig { returns(T.nilable(Lox::Token)) }
     attr_reader :token
 
-    sig { params(token: Lox::Token, message: String).void }
+    sig { params(token: T.nilable(Lox::Token), message: String).void }
     def initialize(token, message)
       @token, @message = token, message
       super(message)
@@ -83,7 +83,11 @@ module Lox
 
   sig { params(error: Lox::RuntimeError).void }
   def self.runtime_error(error)
-    STDERR.puts "#{error.message}\n[line #{error.token.line}]"
+    if error.token
+      STDERR.puts "#{error.message}\n[line #{T.must(error.token).line}]"
+    else
+      STDERR.puts error.message
+    end
     self.runtime_error = true
   end
 
@@ -163,7 +167,8 @@ module Lox
       :THIS,
       :TRUE,
       :VAR,
-      :WHILE
+      :WHILE,
+      :BREAK
     ].reduce(Hash.new) do |acc, kw|
       { **acc, kw.downcase.to_s => Lox::TokenType.const_get(kw) }
     end

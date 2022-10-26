@@ -23,8 +23,16 @@ module Lox
     sig { returns(Lox::Environment) }
     attr_accessor :environment
 
+    sig { returns(T::Boolean) }
+    attr_accessor :break
+
+    sig { returns(T::Boolean) }
+    attr_accessor :looping
+
     def initialize
       @environment = Environment.new
+      @break = false
+      @looping = false
     end
 
     sig { params(stms: T::Array[Lox::Stmt]).void }
@@ -101,8 +109,25 @@ module Lox
 
     sig { override.params(stmt: While).returns(Object).checked(:never) }
     def visit_WhileStmt(stmt)
+      self.looping = true
+
       while truthy?(evaluate(stmt.condition))
         execute(stmt.body)
+        break if self.break
+      end
+
+      self.looping = false
+      self.break = false
+
+      nil
+    end
+
+    sig { override.params(stmt: Break).returns(Object).checked(:never) }
+    def visit_BreakStmt(stmt)
+      if self.looping
+        self.break = true
+      else
+        raise Lox::RuntimeError.new(nil, "Can't break outside loop")
       end
 
       nil
