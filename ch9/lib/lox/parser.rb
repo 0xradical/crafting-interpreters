@@ -41,6 +41,9 @@ module Lox
     sig { returns(Integer) }
     attr_accessor :current
 
+    sig { returns(T::Array[Lox::While]) }
+    attr_accessor :loops
+
     ##
     # @current points to the next token eagerly waiting to be parsed.
     #
@@ -48,6 +51,7 @@ module Lox
     def initialize(tokens = [])
       @tokens = tokens
       @current = T.let(0, Integer)
+      @loops = []
     end
 
     # sig { returns(T.nilable(Lox::Expr)) }
@@ -170,7 +174,11 @@ module Lox
     sig { returns(Lox::Stmt) }
     def break_statement
       consume!(Lox::TokenType::SEMICOLON, "Expected ';' after 'break'")
-      Lox::Break.new
+      if self.current_loop
+        return Lox::Break.new(T.must(self.current_loop))
+      else
+        raise error(peek.line, "Expected 'break' inside a loop")
+      end
     end
 
 
@@ -194,9 +202,13 @@ module Lox
       condition = expression
       consume!(Lox::TokenType::RIGHT_PAREN, "Expected ')' after while condition")
 
+      current_while = T.cast(Lox::While.allocate, Lox::While)
+      self.loops.push(current_while)
       body = statement
+      self.loops.pop
 
-      Lox::While.new(condition, body)
+      current_while.send(:initialize, condition, body)
+      current_while
     end
 
     sig { returns(Lox::Stmt) }
@@ -543,6 +555,15 @@ module Lox
     sig { returns(T.nilable(Lox::Token)) }
     def previous
       current == 0 ? nil : @tokens[current - 1]
+    end
+
+    ##
+    # Returns current loop
+    #
+    # @return TODO
+    sig { returns(T.nilable(Lox::While)) }
+    def current_loop
+      self.loops[-1]
     end
 
     ##

@@ -167,6 +167,14 @@ module Lox
   class Break < Stmt
     extend T::Sig
 
+    sig { returns(Lox::Stmt) }
+    attr_reader :loop
+
+    sig { params(loop: Lox::Stmt).void }
+    def initialize(loop)
+      @loop = loop
+    end
+
     sig { override.type_parameters(:R).params(visitor: StmtVisitor[T.type_parameter(:R)]).returns(T.type_parameter(:R))}
     def accept(visitor)
       visitor.visit_BreakStmt(self)

@@ -95,7 +95,9 @@ module Tools
           condition: "Lox::Expr",
           body: "Lox::Stmt"
         },
-        Break: {}
+        Break: {
+          loop: "Lox::Stmt"
+        }
       })
     end
 
